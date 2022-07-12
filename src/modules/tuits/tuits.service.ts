@@ -4,12 +4,16 @@ import { Repository } from 'typeorm';
 
 import { CreateTuitDto, PaginationQueryDto, UpdateTuitDto } from './dto';
 import { Tuit } from './tuit.entity';
+import { User } from '../users/entities';
 
 @Injectable()
 export class TuitsService {
-  constructor(@InjectRepository(Tuit) private readonly tuitRepository: Repository<Tuit>) { }
+  constructor(
+    @InjectRepository(Tuit) private readonly tuitRepository: Repository<Tuit>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+  ) { }
 
-  async getTuits({limit, offset}: PaginationQueryDto): Promise<Tuit[]> {
+  async getTuits({ limit, offset }: PaginationQueryDto): Promise<Tuit[]> {
     return await this.tuitRepository.find({
       relations: ['user'],
       skip: offset,
@@ -32,8 +36,8 @@ export class TuitsService {
     return tuit;
   }
 
-  async createTuit({ message }: CreateTuitDto) {
-    const tuit: Tuit = this.tuitRepository.create({ message });
+  async createTuit({ message, user }: CreateTuitDto) {
+    const tuit: Tuit = this.tuitRepository.create({ message, user });
     return this.tuitRepository.save(tuit);
   }
 
